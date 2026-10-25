@@ -22,11 +22,14 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceViewHolder;
 
 import android.util.AttributeSet;
 import android.view.View;
+import android.view.inputmethod.EditorInfo;
+import android.widget.EditText;
 import android.widget.SeekBar;
 
 import com.hippo.ehviewer.R;
@@ -35,8 +38,14 @@ public class SeekBarPreference extends Preference implements SeekBar.OnSeekBarCh
 
     private int mProgress;
     private int mMin;
-    private int mMax;
-    private boolean mTrackingTouch;
+    // Some preferences calculate their maximum after preferences are inflated.
+    // Keep the initial range open so their default value is never clamped to zero.
+    private int mMax = Integer.MAX_VALUE;
+    private boolean mShowValueInput;
+    @Nullable
+    private SeekBar mSeekBar;
+    @Nullable
+    private EditText mValueInput;
 
     public SeekBarPreference(Context context) {
         super(context);
@@ -57,6 +66,7 @@ public class SeekBarPreference extends Preference implements SeekBar.OnSeekBarCh
         TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.SeekBarPreference, defStyleAttr, defStyleRes);
         setMin(a.getInt(R.styleable.SeekBarPreference_minimum, mMin));
         setMax(a.getInt(R.styleable.SeekBarPreference_max, mMax));
+        mShowValueInput = a.getBoolean(R.styleable.SeekBarPreference_showValueInput, false);
         a.recycle();
 
         setLayoutResource(R.layout.preference_widget_seekbar);
@@ -66,10 +76,36 @@ public class SeekBarPreference extends Preference implements SeekBar.OnSeekBarCh
     public void onBindViewHolder(@NonNull PreferenceViewHolder holder) {
         super.onBindViewHolder(holder);
         SeekBar seekBar = (SeekBar) holder.findViewById(R.id.seekbar);
+        mSeekBar = seekBar;
         seekBar.setOnSeekBarChangeListener(this);
         seekBar.setMax(mMax - mMin);
         seekBar.setProgress(mProgress - mMin);
         seekBar.setEnabled(isEnabled());
+
+        EditText valueInput = (EditText) holder.findViewById(R.id.seekbar_value);
+        mValueInput = valueInput;
+        if (mShowValueInput) {
+            valueInput.setVisibility(View.VISIBLE);
+            valueInput.setEnabled(isEnabled());
+            updateValueInput(mProgress);
+            valueInput.setOnEditorActionListener((v, actionId, event) -> {
+                if (actionId == EditorInfo.IME_ACTION_DONE) {
+                    syncValueInput();
+                    valueInput.clearFocus();
+                    return true;
+                }
+                return false;
+            });
+            valueInput.setOnFocusChangeListener((v, hasFocus) -> {
+                if (!hasFocus) {
+                    syncValueInput();
+                }
+            });
+        } else {
+            valueInput.setVisibility(View.GONE);
+            valueInput.setOnEditorActionListener(null);
+            valueInput.setOnFocusChangeListener(null);
+        }
     }
 
 
@@ -128,6 +164,7 @@ public class SeekBarPreference extends Preference implements SeekBar.OnSeekBarCh
         if (progress != mProgress) {
             mProgress = progress;
             persistInt(progress);
+            updateValueInput(progress);
             if (notifyChanged) {
                 notifyChanged();
             }
@@ -148,30 +185,62 @@ public class SeekBarPreference extends Preference implements SeekBar.OnSeekBarCh
             if (callChangeListener(progress)) {
                 setProgress(progress, false);
             } else {
-                seekBar.setProgress(mProgress);
+                seekBar.setProgress(mProgress - mMin);
             }
+        }
+    }
+
+    private void syncValueInput() {
+        if (mValueInput == null) {
+            return;
+        }
+
+        String value = mValueInput.getText().toString().trim();
+        if (value.isEmpty()) {
+            updateValueInput(mProgress);
+            return;
+        }
+
+        try {
+            int progress = Math.max(mMin, Math.min(mMax, Integer.parseInt(value)));
+            if (progress == mProgress || callChangeListener(progress)) {
+                setProgress(progress, false);
+                if (mSeekBar != null) {
+                    mSeekBar.setProgress(progress - mMin);
+                }
+            }
+        } catch (NumberFormatException ignored) {
+            // Restore the last valid value below.
+        }
+        updateValueInput(mProgress);
+    }
+
+    private void updateValueInput(int progress) {
+        if (mValueInput == null || !mShowValueInput) {
+            return;
+        }
+        String value = String.valueOf(progress);
+        if (!value.equals(mValueInput.getText().toString())) {
+            mValueInput.setText(value);
         }
     }
 
     @Override
     public void onProgressChanged(
             SeekBar seekBar, int progress, boolean fromUser) {
-        if (fromUser && !mTrackingTouch) {
+        if (fromUser) {
             syncProgress(seekBar);
         }
     }
 
     @Override
     public void onStartTrackingTouch(SeekBar seekBar) {
-        mTrackingTouch = true;
+        // Value changes are applied continuously in onProgressChanged.
     }
 
     @Override
     public void onStopTrackingTouch(SeekBar seekBar) {
-        mTrackingTouch = false;
-        if (seekBar.getProgress() != mProgress) {
-            syncProgress(seekBar);
-        }
+        // Value changes are applied continuously in onProgressChanged.
     }
 
     @Override

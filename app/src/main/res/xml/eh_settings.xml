@@ -129,7 +129,8 @@
         android:key="browse_cover_size"
         android:title="@string/settings_eh_browse_cover_size"
         app:allowDividerAbove="true"
-        app:minimum="80" />
+        app:minimum="80"
+        app:showValueInput="true" />
 
     <com.hippo.preference.ListPreference
         android:defaultValue="0"
@@ -146,7 +147,8 @@
         android:title="@string/settings_eh_browse_cover_preview_size"
         app:allowDividerAbove="true"
         app:minimum="20"
-        app:max="100" />
+        app:max="100"
+        app:showValueInput="true" />
 
     <com.hippo.preference.ListPreference
         android:defaultValue="100"

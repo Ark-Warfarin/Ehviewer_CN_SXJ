@@ -218,6 +218,7 @@
     <declare-styleable name="SeekBarPreference">
         <attr name="minimum" format="integer" />
         <attr name="max" format="integer" />
+        <attr name="showValueInput" format="boolean" />
     </declare-styleable>
     <declare-styleable name="FullscreenAttrs">
         <attr name="fullscreenBackgroundColor" format="color" />

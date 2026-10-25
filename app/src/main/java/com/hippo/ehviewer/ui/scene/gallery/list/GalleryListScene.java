@@ -811,13 +811,21 @@ public final class GalleryListScene extends BaseScene
 
         dialog.show();
 
-        // Convert an area percentage into a proportional width/height pair. This
-        // makes 20% the minimum popup area while 100% never exceeds the screen.
+        // Keep the dialog at the cover's 2:3 aspect ratio. The surrounding
+        // window background is transparent, so there are no opaque bars around
+        // the image while the activity behind it remains dimmed.
         if (window != null) {
-            float sideScale = (float) Math.sqrt(Settings.getBrowseCoverPreviewArea() / 100.0f);
-            int width = Math.max(1, Math.round(context.getResources().getDisplayMetrics().widthPixels * sideScale));
-            int height = Math.max(1, Math.round(context.getResources().getDisplayMetrics().heightPixels * sideScale));
-            window.setLayout(width, height);
+            float screenWidth = context.getResources().getDisplayMetrics().widthPixels;
+            float screenHeight = context.getResources().getDisplayMetrics().heightPixels;
+            float targetArea = screenWidth * screenHeight
+                    * Settings.getBrowseCoverPreviewArea() / 100.0f;
+            float coverAspect = 2.0f / 3.0f;
+            float width = (float) Math.sqrt(targetArea * coverAspect);
+            float height = width / coverAspect;
+            float fitScale = Math.min(1.0f,
+                    Math.min(screenWidth / width, screenHeight / height));
+            window.setLayout(Math.max(1, Math.round(width * fitScale)),
+                    Math.max(1, Math.round(height * fitScale)));
         }
     }
 

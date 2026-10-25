@@ -48,7 +48,6 @@ import com.hippo.ehviewer.widget.SimpleRatingView;
 import com.hippo.ehviewer.widget.TileThumbNew;
 import com.hippo.widget.LoadImageViewNew;
 import com.hippo.widget.recyclerview.AutoStaggeredGridLayoutManager;
-import com.hippo.lib.yorozuya.ViewUtils;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -101,10 +100,8 @@ abstract class GalleryAdapterNew extends RecyclerView.Adapter<GalleryAdapterNew.
         mRecyclerView.setAdapter(this);
         mRecyclerView.setLayoutManager(mLayoutManager);
 
-        View calculator = inflater.inflate(R.layout.item_gallery_list_thumb_height, null);
-        ViewUtils.measureView(calculator, 1024, ViewGroup.LayoutParams.WRAP_CONTENT);
-        mListThumbHeight = calculator.getMeasuredHeight();
-        mListThumbWidth = mListThumbHeight * 2 / 3;
+        mListThumbWidth = Settings.getBrowseCoverSizePx(resources);
+        mListThumbHeight = mListThumbWidth * 3 / 2;
 
         setType(type);
 
@@ -150,7 +147,7 @@ abstract class GalleryAdapterNew extends RecyclerView.Adapter<GalleryAdapterNew.
                 break;
             }
             case GalleryAdapterNew.TYPE_GRID: {
-                int columnWidth = mResources.getDimensionPixelOffset(Settings.getThumbSizeResId());
+                int columnWidth = Settings.getBrowseCoverSizePx(mResources);
                 mLayoutManager.setColumnSize(columnWidth);
                 mLayoutManager.setStrategy(AutoStaggeredGridLayoutManager.STRATEGY_SUITABLE_SIZE);
                 if (null != mListDecoration) {

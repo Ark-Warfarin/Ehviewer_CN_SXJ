@@ -29,6 +29,7 @@ import com.hippo.ehviewer.EhDB;
 import com.hippo.ehviewer.R;
 import com.hippo.ehviewer.Settings;
 import com.hippo.ehviewer.client.EhTagDatabase;
+import com.hippo.preference.SeekBarPreference;
 
 public class EhFragment extends BasePreferenceFragmentCompat
         implements Preference.OnPreferenceChangeListener {
@@ -44,6 +45,9 @@ public class EhFragment extends BasePreferenceFragmentCompat
         Preference listMode = findPreference(Settings.KEY_LIST_MODE);
         Preference detailSize = findPreference(Settings.KEY_DETAIL_SIZE);
         Preference thumbSize = findPreference(Settings.KEY_THUMB_SIZE);
+        SeekBarPreference browseCoverSize = findPreference(Settings.KEY_BROWSE_COVER_SIZE);
+        Preference browseCoverClickAction = findPreference(Settings.KEY_BROWSE_COVER_CLICK_ACTION);
+        SeekBarPreference browseCoverPreviewArea = findPreference(Settings.KEY_BROWSE_COVER_PREVIEW_AREA);
         Preference historyInfoSize = findPreference(Settings.KEY_HISTORY_INFO_SIZE);
         Preference showTagTranslations = findPreference(Settings.KEY_SHOW_TAG_TRANSLATIONS);
         Preference showGalleryComment = findPreference(Settings.KEY_SHOW_GALLERY_COMMENT);
@@ -62,6 +66,19 @@ public class EhFragment extends BasePreferenceFragmentCompat
         listMode.setOnPreferenceChangeListener(this);
         detailSize.setOnPreferenceChangeListener(this);
         thumbSize.setOnPreferenceChangeListener(this);
+        if (browseCoverSize != null) {
+            browseCoverSize.setMax(Settings.getMaxBrowseCoverSizeDp(getResources()));
+            updateBrowseCoverSizeSummary(browseCoverSize, Settings.getBrowseCoverSizeDp());
+            browseCoverSize.setOnPreferenceChangeListener(this);
+        }
+        if (browseCoverClickAction != null) {
+            browseCoverClickAction.setOnPreferenceChangeListener(this);
+        }
+        if (browseCoverPreviewArea != null) {
+            updateBrowseCoverPreviewAreaSummary(browseCoverPreviewArea,
+                    Settings.getBrowseCoverPreviewArea());
+            browseCoverPreviewArea.setOnPreferenceChangeListener(this);
+        }
         historyInfoSize.setOnPreferenceChangeListener(this);
         showTagTranslations.setOnPreferenceChangeListener(this);
         showGalleryComment.setOnPreferenceChangeListener(this);
@@ -93,6 +110,15 @@ public class EhFragment extends BasePreferenceFragmentCompat
         } else if (Settings.KEY_THUMB_SIZE.equals(key)) {
             getActivity().setResult(Activity.RESULT_OK);
             return true;
+        } else if (Settings.KEY_BROWSE_COVER_SIZE.equals(key)) {
+            updateBrowseCoverSizeSummary((SeekBarPreference) preference, (Integer) newValue);
+            getActivity().setResult(Activity.RESULT_OK);
+            return true;
+        } else if (Settings.KEY_BROWSE_COVER_CLICK_ACTION.equals(key)) {
+            return true;
+        } else if (Settings.KEY_BROWSE_COVER_PREVIEW_AREA.equals(key)) {
+            updateBrowseCoverPreviewAreaSummary((SeekBarPreference) preference, (Integer) newValue);
+            return true;
         } else if (Settings.KEY_SHOW_TAG_TRANSLATIONS.equals(key)) {
             if (Boolean.TRUE.equals(newValue)) {
                 EhTagDatabase.update(getActivity());
@@ -122,6 +148,17 @@ public class EhFragment extends BasePreferenceFragmentCompat
             return true;
         }
         return true;
+    }
+
+    private void updateBrowseCoverSizeSummary(Preference preference, int sizeDp) {
+        preference.setSummary(getString(R.string.settings_eh_browse_cover_size_summary,
+                Math.min(sizeDp, Settings.getMaxBrowseCoverSizeDp(getResources()))));
+    }
+
+    private void updateBrowseCoverPreviewAreaSummary(Preference preference, int areaPercent) {
+        preference.setSummary(getString(R.string.settings_eh_browse_cover_preview_size_summary,
+                Math.max(Settings.MIN_BROWSE_COVER_PREVIEW_AREA,
+                        Math.min(Settings.MAX_BROWSE_COVER_PREVIEW_AREA, areaPercent))));
     }
 
     private String getSystemThemeSummary() {

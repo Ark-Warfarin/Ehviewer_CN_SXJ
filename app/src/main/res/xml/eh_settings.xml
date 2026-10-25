@@ -124,6 +124,30 @@
         app:entries="@array/thumb_size_entries"
         app:entryValues="@array/thumb_size_entry_values" />
 
+    <com.hippo.preference.SeekBarPreference
+        android:defaultValue="120"
+        android:key="browse_cover_size"
+        android:title="@string/settings_eh_browse_cover_size"
+        app:allowDividerAbove="true"
+        app:minimum="80" />
+
+    <com.hippo.preference.ListPreference
+        android:defaultValue="0"
+        android:key="browse_cover_click_action"
+        android:summary="%s"
+        android:title="@string/settings_eh_browse_cover_click_action"
+        app:allowDividerAbove="true"
+        app:entries="@array/browse_cover_click_action_entries"
+        app:entryValues="@array/browse_cover_click_action_entry_values" />
+
+    <com.hippo.preference.SeekBarPreference
+        android:defaultValue="70"
+        android:key="browse_cover_preview_area"
+        android:title="@string/settings_eh_browse_cover_preview_size"
+        app:allowDividerAbove="true"
+        app:minimum="20"
+        app:max="100" />
+
     <com.hippo.preference.ListPreference
         android:defaultValue="100"
         android:key="history_info_size"

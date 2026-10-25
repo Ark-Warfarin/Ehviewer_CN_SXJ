@@ -45,7 +45,6 @@ import com.hippo.ehviewer.ui.scene.GalleryHolder;
 import com.hippo.ehviewer.ui.scene.TransitionNameFactory;
 import com.hippo.ehviewer.widget.TileThumb;
 import com.hippo.widget.recyclerview.AutoStaggeredGridLayoutManager;
-import com.hippo.lib.yorozuya.ViewUtils;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.concurrent.ExecutorService;
@@ -92,10 +91,8 @@ abstract class GalleryAdapter extends RecyclerView.Adapter<GalleryHolder> {
         mRecyclerView.setAdapter(this);
         mRecyclerView.setLayoutManager(mLayoutManager);
 
-        @SuppressLint("InflateParams") View calculator = inflater.inflate(R.layout.item_gallery_list_thumb_height, null);
-        ViewUtils.measureView(calculator, 1024, ViewGroup.LayoutParams.WRAP_CONTENT);
-        mListThumbHeight = calculator.getMeasuredHeight();
-        mListThumbWidth = mListThumbHeight * 2 / 3;
+        mListThumbWidth = Settings.getBrowseCoverSizePx(resources);
+        mListThumbHeight = mListThumbWidth * 3 / 2;
 
         setType(type);
 
@@ -142,7 +139,7 @@ abstract class GalleryAdapter extends RecyclerView.Adapter<GalleryHolder> {
                 break;
             }
             case GalleryAdapter.TYPE_GRID: {
-                int columnWidth = mResources.getDimensionPixelOffset(Settings.getThumbSizeResId());
+                int columnWidth = Settings.getBrowseCoverSizePx(mResources);
                 mLayoutManager.setColumnSize(columnWidth);
                 mLayoutManager.setStrategy(AutoStaggeredGridLayoutManager.STRATEGY_SUITABLE_SIZE);
                 if (null != mListDecoration) {

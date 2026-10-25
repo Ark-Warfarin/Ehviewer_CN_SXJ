@@ -612,6 +612,13 @@
     <string name="settings_eh_thumb_size_large">Large</string>
     <string name="settings_eh_thumb_size_middle">Middle</string>
     <string name="settings_eh_thumb_size_small">Small</string>
+    <string name="settings_eh_browse_cover_size">Browse cover size</string>
+    <string name="settings_eh_browse_cover_size_summary">Current: %1$d dp (capped to screen size)</string>
+    <string name="settings_eh_browse_cover_click_action">Tap browse cover</string>
+    <string name="settings_eh_browse_cover_click_tags">Show tags</string>
+    <string name="settings_eh_browse_cover_click_preview">Show enlarged cover</string>
+    <string name="settings_eh_browse_cover_preview_size">Enlarged cover size</string>
+    <string name="settings_eh_browse_cover_preview_size_summary">Current: %1$d%% of screen area</string>
     <string name="settings_eh_thumb_resolution">Thumb resolution</string>
     <string name="settings_eh_thumb_resolution_summary">Currently %s. Certain resolutions might cause getting thumb failed</string>
     <string name="settings_eh_thumb_resolution_auto">Auto</string>

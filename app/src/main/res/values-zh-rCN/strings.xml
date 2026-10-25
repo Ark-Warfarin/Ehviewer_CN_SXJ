@@ -524,6 +524,13 @@
     <string name="settings_eh_thumb_size_large">大</string>
     <string name="settings_eh_thumb_size_middle">中</string>
     <string name="settings_eh_thumb_size_small">小</string>
+    <string name="settings_eh_browse_cover_size">浏览页封面大小</string>
+    <string name="settings_eh_browse_cover_size_summary">当前：%1$d dp（不会超过屏幕尺寸）</string>
+    <string name="settings_eh_browse_cover_click_action">点击浏览页封面</string>
+    <string name="settings_eh_browse_cover_click_tags">显示标签</string>
+    <string name="settings_eh_browse_cover_click_preview">弹窗查看大图</string>
+    <string name="settings_eh_browse_cover_preview_size">封面大图尺寸</string>
+    <string name="settings_eh_browse_cover_preview_size_summary">当前：屏幕面积的 %1$d%%</string>
     <string name="settings_eh_thumb_resolution">缩略图分辨率</string>
     <string name="settings_eh_thumb_resolution_summary">%s，指定分辨率可能使获取缩略图失败</string>
     <string name="settings_eh_thumb_resolution_auto">自动</string>

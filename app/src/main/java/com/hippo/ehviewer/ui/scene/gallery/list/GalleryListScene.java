@@ -19,6 +19,7 @@ package com.hippo.ehviewer.ui.scene.gallery.list;
 import android.animation.Animator;
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -41,6 +42,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewConfiguration;
 import android.view.ViewGroup;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.ArrayAdapter;
 import android.widget.LinearLayout;
 import android.widget.ListView;
@@ -735,6 +738,11 @@ public final class GalleryListScene extends BaseScene
             return;
         }
 
+        if (Settings.getBrowseCoverClickAction() == Settings.BROWSE_COVER_CLICK_PREVIEW) {
+            showBrowseCoverPreview(gi);
+            return;
+        }
+
         if (popupWindow != null) {
             if (popupWindowPosition == position) {
                 popupWindowPosition = -1;
@@ -769,6 +777,47 @@ public final class GalleryListScene extends BaseScene
             thumb.getLocationOnScreen(location);
             popupWindow.showAtLocation(thumb, Gravity.NO_GRAVITY, location[0] + thumb.getWidth(), location[1]);
             popupWindowPosition = position;
+        }
+    }
+
+    private void showBrowseCoverPreview(GalleryInfo gi) {
+        Context context = getEHContext();
+        if (context == null || gi == null || TextUtils.isEmpty(gi.thumb)) {
+            return;
+        }
+
+        View content = getLayoutInflater().inflate(R.layout.dialog_browse_cover_preview, null);
+        LoadImageViewNew cover = content.findViewById(R.id.cover_preview);
+        cover.load(EhCacheKeyFactory.getThumbKey(gi.gid), gi.thumb);
+
+        Dialog dialog = new Dialog(context, android.R.style.Theme_Translucent_NoTitleBar);
+        dialog.setContentView(content);
+        dialog.setCancelable(true);
+        dialog.setCanceledOnTouchOutside(true);
+
+        View.OnClickListener dismissListener = v -> dialog.dismiss();
+        content.setOnClickListener(dismissListener);
+        cover.setOnClickListener(dismissListener);
+
+        Window window = dialog.getWindow();
+        if (window != null) {
+            window.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+            WindowManager.LayoutParams attributes = window.getAttributes();
+            attributes.dimAmount = 0.65f;
+            window.setAttributes(attributes);
+            window.addFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND);
+            window.setWindowAnimations(R.style.CoverImageDialogAnimation);
+        }
+
+        dialog.show();
+
+        // Convert an area percentage into a proportional width/height pair. This
+        // makes 20% the minimum popup area while 100% never exceeds the screen.
+        if (window != null) {
+            float sideScale = (float) Math.sqrt(Settings.getBrowseCoverPreviewArea() / 100.0f);
+            int width = Math.max(1, Math.round(context.getResources().getDisplayMetrics().widthPixels * sideScale));
+            int height = Math.max(1, Math.round(context.getResources().getDisplayMetrics().heightPixels * sideScale));
+            window.setLayout(width, height);
         }
     }
 

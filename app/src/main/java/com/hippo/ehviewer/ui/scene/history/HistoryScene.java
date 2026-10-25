@@ -72,7 +72,6 @@ import com.hippo.view.ViewTransition;
 import com.hippo.widget.LoadImageView;
 import com.hippo.widget.recyclerview.AutoStaggeredGridLayoutManager;
 import com.hippo.lib.yorozuya.AssertUtils;
-import com.hippo.lib.yorozuya.ViewUtils;
 
 import org.greenrobot.greendao.query.LazyList;
 
@@ -338,11 +337,8 @@ public class HistoryScene extends ToolbarScene
 
         public HistoryAdapter() {
             mInflater = getLayoutInflater2();
-
-            View calculator = mInflater.inflate(R.layout.item_gallery_list_thumb_height, null);
-            ViewUtils.measureView(calculator, 1024, ViewGroup.LayoutParams.WRAP_CONTENT);
-            mListThumbHeight = calculator.getMeasuredHeight();
-            mListThumbWidth = mListThumbHeight * 2 / 3;
+            mListThumbWidth = Settings.getBrowseCoverSizePx(getResources());
+            mListThumbHeight = mListThumbWidth * 3 / 2;
         }
 
         @Override

@@ -23,6 +23,7 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
+import android.content.res.Resources;
 import android.net.Uri;
 import android.preference.PreferenceManager;
 import android.util.Log;
@@ -485,6 +486,60 @@ public class Settings {
             case 2:
                 return R.dimen.gallery_grid_column_width_small;
         }
+    }
+
+    /**
+     * Cover width on gallery browsing screens. The detailed card view keeps its
+     * existing 2:3 aspect ratio, so the usable upper bound also accounts for the
+     * current screen height.
+     */
+    public static final String KEY_BROWSE_COVER_SIZE = "browse_cover_size";
+    public static final int MIN_BROWSE_COVER_SIZE_DP = 80;
+    // Matches the previous default for the thumbnail browsing mode.
+    private static final int DEFAULT_BROWSE_COVER_SIZE_DP = 120;
+
+    public static int getBrowseCoverSizeDp() {
+        return Math.max(MIN_BROWSE_COVER_SIZE_DP,
+                getInt(KEY_BROWSE_COVER_SIZE, DEFAULT_BROWSE_COVER_SIZE_DP));
+    }
+
+    /** Returns the greatest width that still keeps a 2:3 cover inside the screen. */
+    public static int getMaxBrowseCoverSizeDp(Resources resources) {
+        float density = resources.getDisplayMetrics().density;
+        int width = resources.getDisplayMetrics().widthPixels;
+        int height = resources.getDisplayMetrics().heightPixels;
+        int maxWidthPx = Math.min(width, height * 2 / 3);
+        return Math.max(MIN_BROWSE_COVER_SIZE_DP, (int) (maxWidthPx / density));
+    }
+
+    public static int getBrowseCoverSizePx(Resources resources) {
+        float density = resources.getDisplayMetrics().density;
+        int requestedPx = Math.round(getBrowseCoverSizeDp() * density);
+        int maxPx = Math.round(getMaxBrowseCoverSizeDp(resources) * density);
+        return Math.min(requestedPx, maxPx);
+    }
+
+    public static final String KEY_BROWSE_COVER_CLICK_ACTION = "browse_cover_click_action";
+    public static final int BROWSE_COVER_CLICK_TAGS = 0;
+    public static final int BROWSE_COVER_CLICK_PREVIEW = 1;
+
+    public static int getBrowseCoverClickAction() {
+        int action = getIntFromStr(KEY_BROWSE_COVER_CLICK_ACTION, BROWSE_COVER_CLICK_TAGS);
+        return action == BROWSE_COVER_CLICK_PREVIEW
+                ? BROWSE_COVER_CLICK_PREVIEW : BROWSE_COVER_CLICK_TAGS;
+    }
+
+    public static final String KEY_BROWSE_COVER_PREVIEW_AREA = "browse_cover_preview_area";
+    public static final int MIN_BROWSE_COVER_PREVIEW_AREA = 20;
+    public static final int MAX_BROWSE_COVER_PREVIEW_AREA = 100;
+    private static final int DEFAULT_BROWSE_COVER_PREVIEW_AREA = 70;
+
+    /** Percentage of the screen area reserved for the enlarged-cover popup. */
+    public static int getBrowseCoverPreviewArea() {
+        int value = getInt(KEY_BROWSE_COVER_PREVIEW_AREA,
+                DEFAULT_BROWSE_COVER_PREVIEW_AREA);
+        return Math.max(MIN_BROWSE_COVER_PREVIEW_AREA,
+                Math.min(MAX_BROWSE_COVER_PREVIEW_AREA, value));
     }
 
     public static final String KEY_THUMB_RESOLUTION = "thumb_resolution";
